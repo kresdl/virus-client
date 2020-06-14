@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 
 export const useListeners = (emitter, listeners, dependencies) => {
   const memoized = useMemo(() => listeners, dependencies);
@@ -17,24 +17,31 @@ export const useListeners = (emitter, listeners, dependencies) => {
 };
 
 export const useInfo = initial => {
-  const [info, setInfo] = useState(initial);
+  const [info, setInfo] = useState(initial),
+    players = useRef();
 
   const controller = useMemo(() => ({
-    players(p) {
+    players(me, opponent) {
+      players.current = [me, opponent];
+
       setInfo(
-        playersTemplate(p)
+        playersTemplate(players.current)
       );
+    },
+
+    wait() {
+      setInfo('Waiting for a contender...');
     },
 
     partial(results) {
       setInfo(
-        partialResultsTemplate(results)
+        partialTemplate(results)
       );
     },
 
-    results(results, nick) {
+    results(results) {
       setInfo(
-        resultsTemplate(results, nick)
+        resultsTemplate(results, players.current)
       );
     },
 
@@ -48,26 +55,18 @@ export const useInfo = initial => {
 
 const playersTemplate = players => players.join(' VS ');
 
-const partialResultsTemplate = ({ player, time }) => {
+const partialTemplate = ({ player, time }) => {
   const sec = (time / 1000).toFixed(2);
   return [player, sec].join(': ') + 's';
 };
 
-const resultsTemplate = (results, nick) => {
-  debugger;
-  const res = Object.entries(results
-    .reduce((acc, e) => ({
-      ...acc,
-      [e.player]: (acc[e.player] || 0) + 1
-    }), {})
-  );
-
-  const [me, you] = res[0][0] === nick
-    ? [res[0][1], res[1][1]]
-    : [res[1][1], res[0][1]];
+const resultsTemplate = (results, players) => {
+  const res = results.filter(Boolean),
+    me = res.filter(r => r.player === players[0]).length,
+    you = res.length - me;
 
   if (me > you) {
-    return `You win by ${me}-${you}!`;
+    return `You win by ${me}-${you} 🎉`;
   } else if (you > me) {
     return `You lose by ${you}-${me}`;
   }

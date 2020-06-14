@@ -6,7 +6,7 @@ import Game from './Game';
 
 const App = () => {
   const [socket, setSocket] = useState(),
-    [nick, setNick] = useState();
+    [name, setName] = useState();
 
   useEffect(() => {
     const socket = io('http://localhost:5000');
@@ -14,9 +14,9 @@ const App = () => {
   }, [setSocket]);
 
   return socket
-    ? nick
-      ? <Game socket={socket} nick={nick} />
-      : <Login socket={socket} setNick={setNick} />
+    ? name
+      ? <Game socket={socket} name={name} />
+      : <Login socket={socket} setName={setName} />
       
     : <Connect />
   ;

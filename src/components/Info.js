@@ -1,9 +1,9 @@
 import React from 'react';
 import './Info.css';
 
-const Info = ({ text }) => 
+const Info = ({ children }) => 
   <div className="info">
-    <p>{text}</p>
+    <p>{children}</p>
   </div>
 ;
 

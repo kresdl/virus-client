@@ -2,15 +2,15 @@ import React from 'react';
 import { Form, Button } from 'react-bootstrap';
 import './Login.css';
 
-const Login = ({ socket, setNick }) => {
+const Login = ({ socket, setName }) => {
 
   const submit = async evt => {
     evt.preventDefault();
-    const nick = evt.target.elements.namedItem('nick').value;
+    const name = evt.target.elements.namedItem('nick').value;
 
-    socket.emit('join', nick);
-    socket.once('inuse', () => alert('Nick in usea'));
-    socket.once('joined', setNick);
+    socket.emit('join', name);
+    socket.once('inuse', () => alert('Nick in use'));
+    socket.once('joined', setName);
   };
 
   return (

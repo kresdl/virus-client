@@ -6,14 +6,14 @@ import './Game.css';
 
 const SCOPE_RADIUS = 300;
 
-const Game = ({ nick, socket }) => {
-  const [info, setInfo] = useInfo('Waiting for a contender...'),
-
+const Game = ({ name, socket }) => {
+  const [info, setInfo] = useInfo(),
     listeners = {
-      ready: players => setInfo.players(players),
-      start: () => setInfo.close(),
-      results: results => setInfo.partial(results),
-      end: results => setInfo.results(results, nick)
+      wait: setInfo.wait,
+      ready: opponent => setInfo.players(name, opponent),
+      start: setInfo.close,
+      partial: setInfo.partial,
+      results: setInfo.results
     },
 
     size = SCOPE_RADIUS * 2,
@@ -30,7 +30,7 @@ const Game = ({ nick, socket }) => {
       <div className="scope" style={styles}>
         {
           info
-          ? <Info text={info} />
+          ? <Info>{info}</Info>
           : <Arena socket={socket} />
         }
       </div>
