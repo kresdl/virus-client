@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 
+// Hook to listen to multiple events according to submitted key/value-pairs
 export const useListeners = (emitter, listeners, dependencies) => {
   const memoized = useMemo(() => listeners, dependencies);
 
@@ -16,11 +17,19 @@ export const useListeners = (emitter, listeners, dependencies) => {
   }, [emitter, memoized])
 };
 
+// Hook to display info
 export const useInfo = initial => {
   const [info, setInfo] = useState(initial),
     players = useRef();
 
   const controller = useMemo(() => ({
+
+    // Display waiting notification
+    wait() {
+      setInfo('Waiting for a contender...');
+    },
+
+    // Display players
     players(me, opponent) {
       players.current = [me, opponent];
 
@@ -29,22 +38,24 @@ export const useInfo = initial => {
       );
     },
 
-    wait() {
-      setInfo('Waiting for a contender...');
-    },
-
+    // Display partial results
     partial(results) {
-      setInfo(
-        partialTemplate(results)
-      );
+      // Delay display to sync with virus fade transition
+      setTimeout(() => {
+        setInfo(
+          partialTemplate(results)
+        );
+      }, 200);
     },
 
+    // Display end results
     results(results) {
       setInfo(
         resultsTemplate(results, players.current)
       );
     },
 
+    // Close info and show game board
     close() {
       setInfo(null);
     }

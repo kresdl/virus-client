@@ -8,6 +8,7 @@ const App = () => {
   const [socket, setSocket] = useState(),
     [name, setName] = useState();
 
+  // Connect to websocket endpoint at mount
   useEffect(() => {
     const socket = io('http://localhost:5000');
     socket.once('connect', () => setSocket(socket));

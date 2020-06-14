@@ -1,3 +1,21 @@
 .virus {
   position: absolute;
 }
+
+.virus-enter {
+  transform: scale(0);
+}
+
+.virus-enter-active {
+  transform: scale(1);
+  transition: transform 200ms;
+}
+
+.virus-exit {
+  transform: scale(1);
+}
+
+.virus-exit-active {
+  transform: scale(0);
+  transition: transform 200ms;
+}
