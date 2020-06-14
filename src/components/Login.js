@@ -17,7 +17,7 @@ const Login = ({ socket, setName }) => {
     <div className="login">
       <Form className="form-inline" onSubmit={submit}>
         <Form.Control className="mr-2" type="text" placeholder="Nick" name="nick" />
-        <Button type="submit" variant="primary">Join</Button>
+        <Button type="submit" variant="primary">Play</Button>
       </Form>
     </div>
   );

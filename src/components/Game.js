@@ -7,13 +7,13 @@ import './Game.css';
 const SCOPE_RADIUS = 300;
 
 const Game = ({ name, socket }) => {
-  const [info, setInfo] = useInfo(),
+  const [info, control] = useInfo(),
     listeners = {
-      wait: setInfo.wait,
-      ready: opponent => setInfo.players(name, opponent),
-      start: setInfo.close,
-      partial: setInfo.partial,
-      results: setInfo.results
+      wait: control.wait,
+      ready: opponent => control.players(name, opponent),
+      start: control.close,
+      partial: control.partial,
+      results: control.results
     },
 
     size = SCOPE_RADIUS * 2,
@@ -23,14 +23,14 @@ const Game = ({ name, socket }) => {
       height: size
     };
 
-  useListeners(socket, listeners, [setInfo])
+  useListeners(socket, listeners, [control])
 
   return (
     <div className="game">
       <div className="scope" style={styles}>
         {
           info
-          ? <Info>{info}</Info>
+          ? <Info end={info.end} socket={socket}>{info.msg}</Info>
           : <Arena socket={socket} />
         }
       </div>

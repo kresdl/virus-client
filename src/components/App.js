@@ -8,10 +8,12 @@ const App = () => {
   const [socket, setSocket] = useState(),
     [name, setName] = useState();
 
-  // Connect to websocket endpoint at mount
+  // Connect to websocket endpoint on mount and disconnect on unmount
   useEffect(() => {
     const socket = io('http://localhost:5000');
     socket.once('connect', () => setSocket(socket));
+
+    return () => socket.disconnect();
   }, [setSocket]);
 
   return socket

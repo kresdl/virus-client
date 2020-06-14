@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 
-// Hook to listen to multiple events according to submitted key/value-pairs
+// Hook that deals with responding to multiple 
+// events by key/value lookup
 export const useListeners = (emitter, listeners, dependencies) => {
   const memoized = useMemo(() => listeners, dependencies);
 
@@ -9,6 +10,7 @@ export const useListeners = (emitter, listeners, dependencies) => {
       emitter.addEventListener(key, val);
     });
 
+    //Cleanup
     return () => {
       Object.entries(memoized).forEach(([key, val]) => {
         emitter.removeEventListener(key, val);
@@ -17,42 +19,43 @@ export const useListeners = (emitter, listeners, dependencies) => {
   }, [emitter, memoized])
 };
 
-// Hook to display info
-export const useInfo = initial => {
-  const [info, setInfo] = useState(initial),
+// Hook to change display
+export const useInfo = () => {
+  const [info, setInfo] = useState({}),
     players = useRef();
 
-  const controller = useMemo(() => ({
+  const control = useMemo(() => ({
 
     // Display waiting notification
     wait() {
-      setInfo('Waiting for a contender...');
+      setInfo({ msg: 'Waiting for a contender...' });
     },
 
     // Display players
     players(me, opponent) {
       players.current = [me, opponent];
+      const msg = playersTemplate(players.current);
 
-      setInfo(
-        playersTemplate(players.current)
-      );
+      setInfo({ msg });
     },
 
     // Display partial results
     partial(results) {
+
       // Delay display to sync with virus fade transition
+      const msg = partialTemplate(results);
+
       setTimeout(() => {
-        setInfo(
-          partialTemplate(results)
-        );
+        setInfo({ msg });
       }, 200);
     },
 
     // Display end results
     results(results) {
-      setInfo(
-        resultsTemplate(results, players.current)
-      );
+      setInfo({
+        msg: resultsTemplate(results, players.current),
+        end: true
+      });
     },
 
     // Close info and show game board
@@ -61,9 +64,10 @@ export const useInfo = initial => {
     }
   }), [setInfo]);
 
-  return [info, controller];
+  return [info, control];
 };
 
+// Text templetes
 const playersTemplate = players => players.join(' VS ');
 
 const partialTemplate = ({ player, time }) => {
