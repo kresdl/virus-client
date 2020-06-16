@@ -15,7 +15,6 @@ const Arena = ({ socket }) => {
         x = evt.clientX - rect.x,
         y = evt.clientY - rect.y;
 
-      console.log(1);
       socket.emit('click', { x, y });
     },
 

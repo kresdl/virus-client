@@ -8,6 +8,7 @@ const SCOPE_RADIUS = 300;
 
 const Game = ({ name, socket }) => {
   const [info, control] = useInfo(),
+  
     listeners = {
       wait: control.wait,
       ready: opponent => control.players(name, opponent),
