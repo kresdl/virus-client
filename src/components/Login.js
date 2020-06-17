@@ -1,19 +1,8 @@
 import React from 'react';
 import { Form, Button } from 'react-bootstrap';
-import { useListeners } from '../hooks';
 import './Login.css';
 
-const Login = ({ socket, setName }) => {
-
-  const listeners = {
-    joined: setName,
-    
-    inuse() {
-      alert('Nick in use');
-    }
-  };
-
-  useListeners(socket, listeners, [setName]);
+const Login = ({ socket }) => {
 
   const submit = async evt => {
     evt.preventDefault();

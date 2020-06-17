@@ -1,10 +1,10 @@
 import React from 'react';
 import './Virus.css';
 
-const VIRUS_SIZE = 100;
+const VIRUS_SIZE = 100,
 
 // Get virus svg-urls
-const ctx = require.context('../images'),
+  ctx = require.context('../images'),
   keys = ctx.keys(),
   urls = keys.map(ctx);
 

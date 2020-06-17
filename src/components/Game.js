@@ -1,41 +1,13 @@
-import React, { useState } from 'react';
-import { useListeners, useInfo, useTimer } from '../hooks';
+import React from 'react';
 import Info from './Info';
 import Arena from './Arena';
 import './Game.scss';
 
 const SCOPE_RADIUS = 300;
 
-const Game = ({ name, socket }) => {
-  const { info, waitMsg, playersMsg, 
-    partialMsg, resultsMsg, closeInfo } = useInfo(),
-    { time, startTimer, stopTimer, resetTimer } = useTimer(),
-    [animated, setAnimated] = useState(),
-  
-    listeners = {
-      wait() {
-        waitMsg();
-        resetTimer();
-      },
+const Game = ({ socket, info, virus, setVirus, stopTimer, time, animated, setAnimated }) => {
 
-      ready(opponent) {
-        playersMsg(name, opponent);
-      },
-
-      start() {
-        setAnimated(true);
-        closeInfo();
-        resetTimer();
-      },
-
-      partial(results) {
-        partialMsg(results);
-      },
-
-      results: resultsMsg
-    },
-
-    size = SCOPE_RADIUS * 2,
+  const size = SCOPE_RADIUS * 2,
 
     styles = {
       width: size,
@@ -44,27 +16,25 @@ const Game = ({ name, socket }) => {
 
     animationIteration = () => {
       info && setAnimated(false);
-    };
+    },
 
-  useListeners(socket, listeners, [
-    name, waitMsg, resetTimer, playersMsg, setAnimated, 
-      closeInfo, resetTimer, partialMsg,  resultsMsg
-  ]);
+    formattedTime = (time / 1000).toFixed(2);
 
   return (
     <div className={animated ? 'game animated' : 'game'}>
       <div className="scope" style={styles}
-         onAnimationIteration={animationIteration}>
+        onAnimationIteration={animationIteration}>
         <div className="bg">
           {
             info
               ? <Info end={info.end} socket={socket}>{info.msg}</Info>
-              : <Arena {...{ socket, startTimer, stopTimer, resetTimer }} />
+              : <Arena {...{ socket, virus, setVirus, stopTimer }} />
           }
         </div>
       </div>
-      <p className="text-white timer" 
-        style={{ opacity: time ? 1 : 0 }}>{(time / 1000).toFixed(2)}</p>
+      <p className="text-white timer" style={{ opacity: time ? 1 : 0 }}>
+        {formattedTime}
+      </p>
     </div>
   )
 }
