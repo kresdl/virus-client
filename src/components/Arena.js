@@ -4,7 +4,7 @@ import Virus from './Virus';
 import './Arena.css';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
-const Arena = ({ socket }) => {
+const Arena = ({ socket, startTimer, stopTimer }) => {
   const [virus, setVirus] = useState(),
 
     mouseDown = evt => {
@@ -18,25 +18,33 @@ const Arena = ({ socket }) => {
       socket.emit('click', { x, y });
     },
 
-    clearVirus = () => setVirus(null),
+    enter = virus => {
+      startTimer();
+      setVirus(virus);
+    },
+
+    exit = () => {
+      stopTimer();
+      setVirus(null);
+    },
 
     listeners = {
-      virus: setVirus,
-      miss: clearVirus,
-      partial: clearVirus,
-      results: clearVirus
+      virus: enter,
+      miss: exit,
+      partial: exit,
+      results: exit
     };
 
-  useListeners(socket, listeners, [setVirus]);
+  useListeners(socket, listeners, [setVirus, startTimer, stopTimer]);
 
   return (
     <div className="arena" onMouseDown={mouseDown}>
       <TransitionGroup>
         {
           virus && 
-          <CSSTransition timeout={200} classNames="virus">
-            <Virus {...virus} />
-          </CSSTransition>
+            <CSSTransition timeout={200} classNames="virus">
+              <Virus {...virus} />
+            </CSSTransition>
         }
       </TransitionGroup>
     </div>

@@ -1,34 +1,62 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 
+// Timer hook
+export const useTimer = () => {
+  const [time, setTime] = useState(0);
+  const refs = useRef({});
+  const getElapsed = () => ((performance.now() - refs.current.startTime) / 1000).toFixed(2);
+
+  const ctrl = useMemo(() => ({
+    start() {
+      refs.current.startTime = performance.now();
+  
+      refs.current.interval = setInterval(() => {
+        setTime(getElapsed());
+      }, 50);
+    
+      setTime(0);
+    },
+  
+    stop() {
+      clearInterval(refs.current.interval);
+      setTime(getElapsed());
+    },
+
+    reset() {
+      clearInterval(refs.current.interval);
+      setTime(0)
+    }
+  }), [refs, setTime]);
+
+  return [time, ctrl];
+}
+
 // Hook that deals with responding to multiple 
 // events by key/value lookup
 export const useListeners = (emitter, listeners, dependencies) => {
-  const memoized = useMemo(() => listeners, dependencies);
-
   useEffect(() => {
-    Object.entries(memoized).forEach(([key, val]) => {
+    Object.entries(listeners).forEach(([key, val]) => {
       emitter.addEventListener(key, val);
     });
 
     //Cleanup
     return () => {
-      Object.entries(memoized).forEach(([key, val]) => {
+      Object.entries(listeners).forEach(([key, val]) => {
         emitter.removeEventListener(key, val);
       })
     };
-  }, [emitter, memoized])
+  }, [emitter, ...dependencies])
 };
 
-// Hook to change display
+// Hook to deal with messages
 export const useInfo = () => {
-  const [info, setInfo] = useState({}),
+  const [data, setData] = useState({}),
     players = useRef();
 
-  const control = useMemo(() => ({
-
+  const ctrl = useMemo(() => ({
     // Display waiting notification
     wait() {
-      setInfo({ msg: 'Waiting for a contender...' });
+      setData({ msg: 'Waiting for a contender...' });
     },
 
     // Display players
@@ -36,7 +64,7 @@ export const useInfo = () => {
       players.current = [me, opponent];
       const msg = playersTemplate(players.current);
 
-      setInfo({ msg });
+      setData({ msg });
     },
 
     // Display partial results
@@ -46,13 +74,13 @@ export const useInfo = () => {
       const msg = partialTemplate(results);
 
       setTimeout(() => {
-        setInfo({ msg });
+        setData({ msg });
       }, 200);
     },
 
     // Display end results
     results(results) {
-      setInfo({
+      setData({
         msg: resultsTemplate(results, players.current),
         end: true
       });
@@ -60,11 +88,11 @@ export const useInfo = () => {
 
     // Close info and show game board
     close() {
-      setInfo(null);
+      setData(null);
     }
-  }), [setInfo]);
+  }), [setData, players]);
 
-  return [info, control];
+  return [data, ctrl];
 };
 
 // Text templetes

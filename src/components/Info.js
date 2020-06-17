@@ -9,7 +9,7 @@ const Info = ({ end, children, socket }) => {
 
   return (
     <div className="info">
-      <p>{children}</p>
+      <p className="message">{children}</p>
       {
         end && <Button variant="primary" onClick={playAgain}>Play again</Button>
       }
