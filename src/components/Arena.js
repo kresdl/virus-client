@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { useListeners } from '../hooks';
 import Virus from './Virus';
 import './Arena.css';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
-const Arena = ({ socket, startTimer, stopTimer }) => {
+const Arena = ({ socket, startTimer, stopTimer, resetTimer }) => {
   const [virus, setVirus] = useState(),
 
     mouseDown = evt => {
@@ -18,21 +18,26 @@ const Arena = ({ socket, startTimer, stopTimer }) => {
       socket.emit('click', { x, y });
     },
 
-    enter = virus => {
-      startTimer();
-      setVirus(virus);
-    },
-
-    exit = () => {
-      stopTimer();
-      setVirus(null);
-    },
-
     listeners = {
-      virus: enter,
-      miss: exit,
-      partial: exit,
-      results: exit
+      virus(virus) {
+        startTimer();
+        setVirus(virus);  
+      },
+
+      miss() {
+        stopTimer();
+        setVirus(null);  
+      },
+
+      partial() {
+        stopTimer();
+        setVirus(null);  
+      },
+
+      results() {
+        resetTimer();
+        setVirus(null);
+      }
     };
 
   useListeners(socket, listeners, [setVirus, startTimer, stopTimer]);
@@ -51,4 +56,5 @@ const Arena = ({ socket, startTimer, stopTimer }) => {
   );
 }
 
-export default Arena;
+// Momoize component to prevent rerender each timer update on parent
+export default memo(Arena);

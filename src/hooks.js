@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 
 // Timer hook
 export const useTimer = () => {
@@ -20,11 +20,13 @@ export const useTimer = () => {
     stop() {
       clearInterval(refs.current.interval);
       setTime(getElapsed());
+      refs.current.startTime = performance.now();
     },
 
     reset() {
       clearInterval(refs.current.interval);
       setTime(0)
+      refs.current.startTime = performance.now();
     }
   }), [refs, setTime]);
 
@@ -69,9 +71,8 @@ export const useInfo = () => {
 
     // Display partial results
     partial(results) {
-
       // Delay display to sync with virus fade transition
-      const msg = partialTemplate(results);
+      const msg = partialTemplate(results, players.current[0]);
 
       setTimeout(() => {
         setData({ msg });
@@ -81,7 +82,7 @@ export const useInfo = () => {
     // Display end results
     results(results) {
       setData({
-        msg: resultsTemplate(results, players.current),
+        msg: resultsTemplate(results, players.current[0]),
         end: true
       });
     },
@@ -96,22 +97,34 @@ export const useInfo = () => {
 };
 
 // Text templetes
-const playersTemplate = players => players.join(' VS ');
 
-const partialTemplate = ({ player, time }) => {
+const playersTemplate = ([p1, p2]) => 
+  <>
+    {p1}<span className="text-danger"> VS </span>{p2}
+  </>
+;
+
+const partialTemplate = ({ player, time }, me) => {
   const sec = (time / 1000).toFixed(2);
-  return [player, sec].join(': ') + 's';
+
+  return (
+    <span className={me === player ? 'text-primary' : 'text-danger'}>
+      {
+        [player, sec].join(': ') + ' sec'
+      }
+    </span>
+  );
 };
 
-const resultsTemplate = (results, players) => {
+const resultsTemplate = (results, me) => {
   const res = results.filter(Boolean),
-    me = res.filter(r => r.player === players[0]).length,
-    you = res.length - me;
+    my = res.filter(r => r.player === me).length,
+    theirs = res.length - me;
 
-  if (me > you) {
-    return `You win by ${me}-${you} 🎉`;
-  } else if (you > me) {
-    return `You lose by ${you}-${me}`;
+  if (my > theirs) {
+    return `You win by ${my}-${theirs} 🎉`;
+  } else if (theirs > my) {
+    return `You lose by ${theirs}-${my}`;
   }
   return `Draw`;
 };

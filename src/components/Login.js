@@ -15,6 +15,9 @@ const Login = ({ socket, setName }) => {
 
   return (
     <div className="login">
+      <h1 className="display-4 mb-5">
+        <span className="text-danger">CORONA</span> HUNTER
+      </h1>
       <Form className="form-inline" onSubmit={submit}>
         <Form.Control className="mr-2" type="text" placeholder="Nick" name="nick" />
         <Button type="submit" variant="primary">Play</Button>

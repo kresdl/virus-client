@@ -18,8 +18,8 @@ const App = () => {
 
   return socket
     ? name
-      ? <Game socket={socket} name={name} />
-      : <Login socket={socket} setName={setName} />
+      ? <Game {...{ socket, name }} />
+      : <Login {... {socket, setName}} />
       
     : <Connect />
   ;
