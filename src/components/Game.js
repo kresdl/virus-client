@@ -7,31 +7,32 @@ import './Game.scss';
 const SCOPE_RADIUS = 300;
 
 const Game = ({ name, socket }) => {
-  const [info, infoCtrl] = useInfo(),
-    [time, timerCtrl] = useTimer(),
+  const { info, waitMsg, playersMsg, 
+    partialMsg, resultsMsg, closeInfo } = useInfo(),
+    { time, startTimer, stopTimer, resetTimer } = useTimer(),
     [animated, setAnimated] = useState(),
   
     listeners = {
       wait() {
-        infoCtrl.wait();
-        timerCtrl.reset();
+        waitMsg();
+        resetTimer();
       },
 
       ready(opponent) {
-        infoCtrl.players(name, opponent);
+        playersMsg(name, opponent);
       },
 
       start() {
         setAnimated(true);
-        infoCtrl.close();
-        timerCtrl.reset();
+        closeInfo();
+        resetTimer();
       },
 
       partial(results) {
-        infoCtrl.partial(results);
+        partialMsg(results);
       },
 
-      results: infoCtrl.results
+      results: resultsMsg
     },
 
     size = SCOPE_RADIUS * 2,
@@ -45,7 +46,10 @@ const Game = ({ name, socket }) => {
       info && setAnimated(false);
     };
 
-  useListeners(socket, listeners, [name, infoCtrl, timerCtrl]);
+  useListeners(socket, listeners, [
+    name, waitMsg, resetTimer, playersMsg, setAnimated, 
+      closeInfo, resetTimer, partialMsg,  resultsMsg
+  ]);
 
   return (
     <div className={animated ? 'game animated' : 'game'}>
@@ -55,8 +59,7 @@ const Game = ({ name, socket }) => {
           {
             info
               ? <Info end={info.end} socket={socket}>{info.msg}</Info>
-              : <Arena socket={socket} startTimer={timerCtrl.start} 
-                  stopTimer={timerCtrl.stop} resetTimer={timerCtrl.reset} />
+              : <Arena {...{ socket, startTimer, stopTimer, resetTimer }} />
           }
         </div>
       </div>

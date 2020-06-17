@@ -7,7 +7,7 @@ export const useTimer = () => {
   const getElapsed = () => ((performance.now() - refs.current.startTime) / 1000).toFixed(2);
 
   const ctrl = useMemo(() => ({
-    start() {
+    startTimer() {
       refs.current.startTime = performance.now();
   
       refs.current.interval = setInterval(() => {
@@ -17,20 +17,20 @@ export const useTimer = () => {
       setTime(0);
     },
   
-    stop() {
+    stopTimer() {
       clearInterval(refs.current.interval);
       setTime(getElapsed());
       refs.current.startTime = performance.now();
     },
 
-    reset() {
+    resetTimer() {
       clearInterval(refs.current.interval);
       setTime(0)
       refs.current.startTime = performance.now();
     }
   }), [refs, setTime]);
 
-  return [time, ctrl];
+  return { time, ...ctrl };
 }
 
 // Hook that deals with responding to multiple 
@@ -52,48 +52,48 @@ export const useListeners = (emitter, listeners, dependencies) => {
 
 // Hook to deal with messages
 export const useInfo = () => {
-  const [data, setData] = useState({}),
+  const [info, setInfo] = useState({}),
     players = useRef();
 
   const ctrl = useMemo(() => ({
     // Display waiting notification
-    wait() {
-      setData({ msg: 'Waiting for a contender...' });
+    waitMsg() {
+      setInfo({ msg: 'Waiting for a contender...' });
     },
 
     // Display players
-    players(me, opponent) {
+    playersMsg(me, opponent) {
       players.current = [me, opponent];
       const msg = playersTemplate(players.current);
 
-      setData({ msg });
+      setInfo({ msg });
     },
 
     // Display partial results
-    partial(results) {
+    partialMsg(results) {
       // Delay display to sync with virus fade transition
       const msg = partialTemplate(results, players.current[0]);
 
       setTimeout(() => {
-        setData({ msg });
+        setInfo({ msg });
       }, 200);
     },
 
     // Display end results
-    results(results) {
-      setData({
+    resultsMsg(results) {
+      setInfo({
         msg: resultsTemplate(results, players.current[0]),
         end: true
       });
     },
 
     // Close info and show game board
-    close() {
-      setData(null);
+    closeInfo() {
+      setInfo(null);
     }
-  }), [setData, players]);
+  }), [setInfo, players]);
 
-  return [data, ctrl];
+  return { info, ...ctrl };
 };
 
 // Text templetes
@@ -119,7 +119,7 @@ const partialTemplate = ({ player, time }, me) => {
 const resultsTemplate = (results, me) => {
   const res = results.filter(Boolean),
     my = res.filter(r => r.player === me).length,
-    theirs = res.length - me;
+    theirs = res.length - my;
 
   if (my > theirs) {
     return `You win by ${my}-${theirs} 🎉`;
