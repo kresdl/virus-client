@@ -4,7 +4,8 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 export const useTimer = () => {
   const [time, setTime] = useState(0);
   const refs = useRef({});
-  const getElapsed = () => ((performance.now() - refs.current.startTime) / 1000).toFixed(2);
+  
+  const getElapsed = () => performance.now() - refs.current.startTime;
 
   const ctrl = useMemo(() => ({
     startTimer() {
@@ -19,14 +20,14 @@ export const useTimer = () => {
   
     stopTimer() {
       clearInterval(refs.current.interval);
-      setTime(getElapsed());
-      refs.current.startTime = performance.now();
+      const elapsed = getElapsed();
+      setTime(elapsed);
+      return elapsed;
     },
 
     resetTimer() {
       clearInterval(refs.current.interval);
       setTime(0)
-      refs.current.startTime = performance.now();
     }
   }), [refs, setTime]);
 
@@ -52,7 +53,7 @@ export const useListeners = (emitter, listeners, dependencies) => {
 
 // Hook to deal with messages
 export const useInfo = () => {
-  const [info, setInfo] = useState({}),
+  const [info, setInfo] = useState(),
     players = useRef();
 
   const ctrl = useMemo(() => ({

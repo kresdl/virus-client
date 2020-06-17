@@ -64,7 +64,7 @@ const Game = ({ name, socket }) => {
         </div>
       </div>
       <p className="text-white timer" 
-      style={{ opacity: time ? 1 : 0 }}>{time}</p>
+        style={{ opacity: time ? 1 : 0 }}>{(time / 1000).toFixed(2)}</p>
     </div>
   )
 }
