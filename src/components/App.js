@@ -62,7 +62,7 @@ const App = () => {
     };
 
   useEffect(() => {
-    const socket = io('http://localhost:5000');
+    const socket = io();
     socket.on('connect', () => setSocket(socket));
   }, [setSocket]);
 
@@ -78,7 +78,7 @@ const App = () => {
         socket, info, virus, setVirus,
         stopTimer, time, animated, setAnimated
       }} />
-      
+
       : <Login {... { socket }} />
 
     : <Connect />
