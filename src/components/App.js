@@ -62,7 +62,7 @@ const App = () => {
     };
 
   useEffect(() => {
-    const socket = io();
+    const socket = io(process.env.REACT_APP_SOCKET_URL);
     socket.on('connect', () => setSocket(socket));
   }, [setSocket]);
 
