@@ -58,6 +58,10 @@ const App = () => {
         resetTimer();
         setVirus(null);
         resultsMsg(results);
+      },
+
+      disconnected() {
+        alert('Disconnected due to inactivity');
       }
     };
 
