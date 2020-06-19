@@ -6,41 +6,32 @@
   align-items: center;
   flex-flow: column;
 
-  &.animated {
-    .scope {
-      animation-name: a;
-    }
-
-    .bg {
-      animation-name: b;
-    }
+  &.animated .scope {
+    animation-name: search;
   }
 }
 
-.scope, .bg {
-  animation-duration: 5s;
-  animation-iteration-count: infinite;
+.wrapper {
+  position: relative;
 }
 
 .bg {
-  height: 100%;
-}
-
-.scope {
   border-radius: 50%;
-  overflow: hidden;
+  height: 100%;
   background-color: white;
   position: relative;
 }
 
-.scope::before {
+.scope {
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
   border-radius: 50%;
-  content: '';
   position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  top: -30px;
+  left: -30px;
+  bottom: -30px;
+  right: -30px;
+  border: 60px solid black;
   box-shadow: inset 0 0 100px rgba(0, 0, 0, 1), inset 0 0 40px rgba(0, 0, 0, 1);
   z-index: 1;
   pointer-events: none;
@@ -50,9 +41,11 @@
   margin-top: 1rem;
   font-size: 2rem;
   font-family: "Courier New", Courier, monospace;
+  z-index: 2;
+  position: relative;
 }
 
-@keyframes a {
+@keyframes search {
   0% { transform: translate(0px, 0px); }
   25% { transform: translate(20px, 4px); }
   35% { transform: translate(10px, 8px); }
@@ -60,14 +53,4 @@
   75% { transform: translate(15px, -5px); }
   90% { transform: translate(-15px, -10px); }
   100% { transform: translate(0px, 0px); }
-}
-
-@keyframes b {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(-20px, -4px); }
-  35% { transform: translate(-10px, -8px); }
-  50% { transform: translate(4px, 8px); }
-  75% { transform: translate(-15px, 5px); }
-  90% { transform: translate(15px, 10px); }
-  100% { transform: translate(0, 0); }
 }

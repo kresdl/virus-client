@@ -10,8 +10,8 @@ const Game = ({ socket, info, virus, setVirus, stopTimer, time, animated, setAni
   const size = SCOPE_RADIUS * 2,
 
     styles = {
-      width: size,
-      height: size
+      width: size + 50,
+      height: size + 50
     },
 
     animationIteration = () => {
@@ -22,8 +22,9 @@ const Game = ({ socket, info, virus, setVirus, stopTimer, time, animated, setAni
 
   return (
     <div className={animated ? 'game animated' : 'game'}>
-      <div className="scope" style={styles}
-        onAnimationIteration={animationIteration}>
+      <div className="wrapper" style={styles}>
+        <div className="scope"
+          onAnimationIteration={animationIteration} />
         <div className="bg">
           {
             info
