@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useStore, useDispatch } from 'react-redux';
 
 // Hook that deals with responding to events by key/value lookup
 export const useListeners = (emitter, listeners, dependencies) => {
-  // Connect to websocket endpoint on mount and disconnect on unmount
-  
   useEffect(() => {
     emitter && Object.entries(listeners).forEach(([key, val]) => {
       emitter.addEventListener(key, val);
     });
 
+    // Remove listeners on clean up
     return () => {
       emitter && Object.entries(listeners).forEach(([key, val]) => {
         emitter.removeEventListener(key, val);
@@ -18,101 +18,130 @@ export const useListeners = (emitter, listeners, dependencies) => {
   }, [emitter, ...dependencies]);
 }
 
-// Timer hook
-export const useTimer = () => {
-  const [time, setTime] = useState(0);
-  const refs = useRef({});
+// Game hook
+export const useControls = () => {
+  const dispatch = useDispatch(),
+    store = useStore();
 
-  const getElapsed = () => performance.now() - refs.current.startTime;
-
-  const ctrl = useMemo(() => ({
-    startTimer() {
-      refs.current.startTime = performance.now();
-
-      refs.current.interval = setInterval(() => {
-        setTime(getElapsed());
-      }, 50);
-
-      setTime(0);
+  return useMemo(() => ({
+    connect(socket) {
+      dispatch({
+        type: 'CONNECT',
+        socket
+      });
     },
 
-    stopTimer() {
-      const { interval } = refs.current;
-      if (!interval) return false;
-
-      clearInterval(interval);
-      refs.current.interval = null;
-
-      const elapsed = getElapsed();
-      setTime(elapsed);
-      return elapsed;
-    },
-
-    resetTimer() {
-      clearInterval(refs.current.interval);
-      refs.current.interval = null;
-      setTime(0);
-    }
-
-  }), [refs, setTime]);
-
-  return { time, ...ctrl };
-}
-
-// Hook to deal with messages
-export const useInfo = () => {
-  const [info, setInfo] = useState(),
-    players = useRef();
-
-  const ctrl = useMemo(() => ({
     // Display waiting notification
-    waitMsg() {
-      setInfo({ msg: 'Waiting for a contender...' });
+    join(name) {
+      dispatch({
+        type: 'JOIN',
+        name
+      });
+    },
+
+    wait() {
+      dispatch({
+        type: 'WAIT',
+        msg: 'Waiting for a contender...'
+      });
     },
 
     // Display players
-    playersMsg(me, opponent) {
-      players.current = [me, opponent];
-      const msg = playersTemplate(players.current);
-
-      setInfo({ msg });
-    },
-
-    // Display partial results
-    partialMsg(results) {
-      // Delay display to sync with virus fade transition
-      const msg = partialTemplate(results, players.current[0]);
-
-      setTimeout(() => {
-        setInfo({ msg });
-      }, 200);
-    },
-
-    // Display end results
-    resultsMsg(results) {
-      setInfo({
-        msg: resultsTemplate(results, players.current[0]),
-        end: true
+    ready(me, opponent) {
+      dispatch({
+        type: 'READY',
+        opponent,
+        msg: playersTemplate(me, opponent)
       });
     },
 
     // Close info and show game board
-    closeInfo() {
-      setInfo(null);
+    start() {
+      dispatch({
+        type: 'START'
+      });
+    },
+
+    virus(virus) {
+      const task = () => {
+        dispatch({
+          type: 'TIME',
+          elapsed: performance.now() - 
+            store.getState().startTime
+        });
+      };
+
+      dispatch({
+        type: 'SHOW_VIRUS',
+        startTime: performance.now(),
+        interval: setInterval(task, 50),
+        virus
+      })
+    },
+
+    hideVirus() {
+      clearInterval(store.getState().interval);
+
+      dispatch({
+        type: 'HIDE_VIRUS'
+      });
+    },
+
+    killVirus() {
+      const { interval, startTime } = store.getState();
+      clearInterval(interval);
+      const elapsed = performance.now() - startTime;
+
+      dispatch({
+        type: 'HIDE_VIRUS',
+        elapsed
+      });
+
+      return elapsed;
+    },
+
+    // Display partial results
+    partial(results, me) {
+      clearInterval(store.getState().interval);
+
+      dispatch({
+        type: 'HIDE_VIRUS',
+      });
+
+      const task = () => {
+        dispatch({
+          type: 'PARTIAL',
+          msg: partialTemplate(results, me)
+        })
+      };
+
+      // Delay task to sync with virus fade transition
+      setTimeout(task, 200);
+    },
+
+    // Display end results
+    end(results, me) {
+      dispatch({
+        type: 'END',
+        msg: resultsTemplate(results, me)
+      })
+    },
+
+    halt() {
+      dispatch({
+        type: 'STOP'
+      })
     }
-
-  }), [setInfo, players]);
-
-  return { info, ...ctrl };
+  }), [dispatch, store]);
 };
 
 // Text templetes
 
-const playersTemplate = ([p1, p2]) =>
+const playersTemplate = (p1, p2) =>
   <>
     {p1}<span className="text-danger"> VS </span>{p2}
   </>
-;
+  ;
 
 const partialTemplate = ({ player, time }, me) => {
   const sec = (time / 1000).toFixed(2);

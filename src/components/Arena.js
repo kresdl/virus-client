@@ -1,11 +1,20 @@
 import React, { memo } from 'react';
+import { useSelector, shallowEqual } from 'react-redux';
+import { useControls } from '../hooks';
 import Virus from './Virus';
 import './Arena.css';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 const VIRUS_SIZE = 100;
 
-const Arena = ({ socket, virus, setVirus, stopTimer }) => {
+const s2p = s => ({
+  socket: s.socket,
+  virus: s.virus
+});
+
+const Arena = () => {
+  const { socket, virus } = useSelector(s2p, shallowEqual),
+    { killVirus } = useControls();
 
   const mouseDown = evt => {
     if (!virus) return;
@@ -16,10 +25,8 @@ const Arena = ({ socket, virus, setVirus, stopTimer }) => {
       y = evt.clientY - rect.y,
       d = Math.sqrt((virus.x - x) ** 2 + (virus.y - y) ** 2);
 
-    if (d < VIRUS_SIZE / 2) {
-      socket.emit('click', stopTimer());
-      setVirus(null);
-    }
+    if (d < VIRUS_SIZE / 2)
+      socket.emit('hit', killVirus());
   };
 
   return (
@@ -27,9 +34,9 @@ const Arena = ({ socket, virus, setVirus, stopTimer }) => {
       <TransitionGroup>
         {
           virus &&
-          <CSSTransition timeout={200} classNames="virus">
-            <Virus {...virus} />
-          </CSSTransition>
+            <CSSTransition timeout={200} classNames="virus">
+              <Virus {...virus} />
+            </CSSTransition>
         }
       </TransitionGroup>
     </div>

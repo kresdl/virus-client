@@ -1,13 +1,24 @@
 import React from 'react';
+import { useSelector, shallowEqual } from 'react-redux';
+import { useControls } from '../hooks';
 import Info from './Info';
 import Arena from './Arena';
 import './Game.scss';
 
-const SCOPE_RADIUS = 300;
+const SCOPE_RADIUS = 300,
+  size = SCOPE_RADIUS * 2;
 
-const Game = ({ socket, info, virus, setVirus, stopTimer, time, animated, setAnimated }) => {
+const s2p = s => ({
+  info: s.info,
+  elapsed: s.elapsed,
+  end: s.end,
+  animated: s.animated,
+  timer: s.timer
+});
 
-  const size = SCOPE_RADIUS * 2,
+const Game = () => {
+  const { info, elapsed, end, animated, timer } = useSelector(s2p, shallowEqual),
+    { halt } = useControls(),
 
     styles = {
       width: size + 50,
@@ -15,10 +26,8 @@ const Game = ({ socket, info, virus, setVirus, stopTimer, time, animated, setAni
     },
 
     animationIteration = () => {
-      info && setAnimated(false);
-    },
-
-    formattedTime = (time / 1000).toFixed(2);
+      end && halt();
+    };
 
   return (
     <div className={animated ? 'game animated' : 'game'}>
@@ -28,13 +37,13 @@ const Game = ({ socket, info, virus, setVirus, stopTimer, time, animated, setAni
         <div className="bg">
           {
             info
-              ? <Info end={info.end} socket={socket}>{info.msg}</Info>
-              : <Arena {...{ socket, virus, setVirus, stopTimer }} />
+              ? <Info>{info}</Info>
+              : <Arena />
           }
         </div>
       </div>
-      <p className="text-white timer" style={{ opacity: time ? 1 : 0 }}>
-        {formattedTime}
+      <p className="text-white timer" style={{ visibility: timer ? 'visible' : 'hidden' }}>
+        {(elapsed / 1000).toFixed(2)}
       </p>
     </div>
   )

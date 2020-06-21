@@ -1,8 +1,12 @@
 import React from 'react';
+import { useSelector, shallowEqual } from 'react-redux';
 import { Form, Button } from 'react-bootstrap';
 import './Login.css';
 
-const Login = ({ socket }) => {
+const s2p = s => s.socket;
+
+const Login = () => {
+  const socket = useSelector(s2p, shallowEqual);
 
   const submit = async evt => {
     evt.preventDefault();

@@ -1,92 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, shallowEqual } from 'react-redux';
 import io from 'socket.io-client';
-import { useListeners, useInfo, useTimer } from '../hooks';
+import { useListeners, useControls } from '../hooks';
 import Connect from './Connect';
 import Login from './Login';
 import Game from './Game';
 
+const s2p = s => ({
+  socket: s.socket,
+  name: s.name
+});
+
 const App = () => {
-  const [socket, setSocket] = useState(),
-    [name, setName] = useState(),
-    { info, waitMsg, playersMsg,
-      partialMsg, resultsMsg, closeInfo } = useInfo(),
-    { time, startTimer, stopTimer, resetTimer } = useTimer(),
-    [virus, setVirus] = useState(),
-    [animated, setAnimated] = useState(),
+  const { socket, name } = useSelector(s2p, shallowEqual),
+    { connect, join, wait, ready, start, virus, 
+      hideVirus, partial, end } = useControls();
 
-    listeners = {
-      joined(name) {
-        setName(name)
-      },
+  const listeners = {
+    join, wait, start, virus,
 
-      inuse() {
-        alert('Nick in use');
-      },
+    inuse() {
+      alert('Nick in use');
+    },
 
-      wait() {
-        waitMsg();
-        resetTimer();
-      },
+    ready(opponent) {
+      ready(name, opponent);
+    },
 
-      ready(opponent) {
-        playersMsg(name, opponent);
-      },
+    miss() {
+      hideVirus();
+    },
 
-      start() {
-        setAnimated(true);
-        closeInfo();
-        resetTimer();
-      },
+    partial(results) {
+      partial(results, name);
+    },
 
-      virus(virus) {
-        startTimer();
-        setVirus(virus);
-      },
+    results(results) {
+      end(results, name);
+    },
 
-      miss() {
-        resetTimer();
-        setVirus(null);
-      },
-
-      partial(results) {
-        stopTimer();
-        setVirus(null);
-        partialMsg(results);
-      },
-
-      results(results) {
-        resetTimer();
-        setVirus(null);
-        resultsMsg(results);
-      },
-
-      disconnected() {
-        alert('Disconnected due to inactivity');
-      }
-    };
+    disconnected() {
+      alert('Disconnected due to inactivity');
+    }
+  };
 
   useEffect(() => {
     const socket = io(process.env.REACT_APP_SOCKET_URL);
-    socket.on('connect', () => setSocket(socket));
-  }, [setSocket]);
+    socket.on('connect', () => connect(socket));
+  }, [connect]);
 
   useListeners(socket, listeners, [
-    name, waitMsg, startTimer, playersMsg, setAnimated, setName,
-    closeInfo, stopTimer, resetTimer, partialMsg, resultsMsg, setVirus
+    name, join, wait, ready, start, partial, end, virus, hideVirus
   ]);
 
   return socket
     ? name
-      ?
-      <Game {...{
-        socket, info, virus, setVirus,
-        stopTimer, time, animated, setAnimated
-      }} />
-
-      : <Login {... { socket }} />
-
+      ? <Game />
+      : <Login />
     : <Connect />
-  ;
+    ;
 }
 
 export default App;
