@@ -35,6 +35,8 @@ export default {
     switch (type) {
       case 'SHOW_VIRUS': return virus;
       case 'PARTIAL':
+      case 'KILL_VIRUS':
+      case 'MISS_VIRUS':
       case 'HIDE_VIRUS': return null;
       default: return state;
     }
@@ -78,9 +80,9 @@ export default {
     }
   },
 
-  timer: (state = false, { type }) => {
+  hit: (state = false, { type }) => {
     switch (type) {
-      case 'SHOW_VIRUS': return true;
+      case 'KILL_VIRUS': return true;
       case 'START': return false;
       default: return state;
     }

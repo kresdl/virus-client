@@ -24,6 +24,8 @@ export const useControls = () => {
     store = useStore();
 
   return useMemo(() => ({
+    
+    // On websocket connection
     connect(socket) {
       dispatch({
         type: 'CONNECT',
@@ -62,6 +64,7 @@ export const useControls = () => {
       });
     },
 
+    // Emit virus and start timer
     virus(virus) {
       const task = () => {
         dispatch({
@@ -79,11 +82,11 @@ export const useControls = () => {
       })
     },
 
-    hideVirus() {
+    missVirus() {
       clearInterval(store.getState().interval);
 
       dispatch({
-        type: 'HIDE_VIRUS'
+        type: 'MISS_VIRUS'
       });
     },
 
@@ -93,7 +96,7 @@ export const useControls = () => {
       const elapsed = performance.now() - startTime;
 
       dispatch({
-        type: 'HIDE_VIRUS',
+        type: 'KILL_VIRUS',
         elapsed
       });
 

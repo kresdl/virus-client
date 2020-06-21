@@ -14,7 +14,7 @@ const s2p = s => ({
 const App = () => {
   const { socket, name } = useSelector(s2p, shallowEqual),
     { connect, join, wait, ready, start, virus, 
-      hideVirus, partial, end } = useControls();
+      missVirus, partial, end } = useControls();
 
   const listeners = {
     join, wait, start, virus,
@@ -28,7 +28,7 @@ const App = () => {
     },
 
     miss() {
-      hideVirus();
+      missVirus();
     },
 
     partial(results) {
@@ -50,7 +50,7 @@ const App = () => {
   }, [connect]);
 
   useListeners(socket, listeners, [
-    name, join, wait, ready, start, partial, end, virus, hideVirus
+    name, join, wait, ready, start, partial, end, virus, missVirus
   ]);
 
   return socket

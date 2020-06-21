@@ -6,7 +6,7 @@ import './Login.css';
 const s2p = s => s.socket;
 
 const Login = () => {
-  const socket = useSelector(s2p, shallowEqual);
+  const socket = useSelector(s2p);
 
   const submit = async evt => {
     evt.preventDefault();

@@ -13,7 +13,7 @@ const s2p = s => ({
   elapsed: s.elapsed,
   end: s.end,
   animated: s.animated,
-  timer: s.timer
+  timer: s.virus || s.hit,
 });
 
 const Game = () => {
@@ -42,7 +42,8 @@ const Game = () => {
           }
         </div>
       </div>
-      <p className="text-white timer" style={{ visibility: timer ? 'visible' : 'hidden' }}>
+      <p className="text-white timer" 
+        style={{ visibility: timer ? 'visible' : 'hidden' }}>
         {(elapsed / 1000).toFixed(2)}
       </p>
     </div>
